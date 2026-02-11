@@ -106,7 +106,7 @@ export const ExpansionScreen: React.FC = () => {
 
 const s = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
+  scroll: { padding: Spacing.lg, paddingBottom: 100 },
   title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, marginBottom: Spacing.xs },
   subtitle: { fontSize: FontSize.sm, marginBottom: Spacing.lg },
   toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

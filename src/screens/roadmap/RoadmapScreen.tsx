@@ -104,7 +104,7 @@ export const RoadmapScreen: React.FC = () => {
 
 const st = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
+  scroll: { padding: Spacing.lg, paddingBottom: 100 },
   title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, marginBottom: Spacing.xs },
   subtitle: { fontSize: FontSize.sm, marginBottom: Spacing.lg },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl },

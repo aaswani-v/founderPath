@@ -1,13 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, OptionCard, ProgressBar } from '../../components';
 import { Spacing, FontSize, FontWeight, useThemeColors } from '../../theme';
 import { useOnboardingStore, useRoadmapStore } from '../../store';
 import { FounderType, StartupType, GoalType, BudgetRange, MarketType, StartupProfile } from '../../models';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-type Props = { navigation: NativeStackNavigationProp<any> };
+type Props = { navigation: any };
 
 const STEPS = [
   {
@@ -74,7 +73,7 @@ const STEPS = [
 ];
 
 export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
-  const { currentStep, totalSteps, answers, setFounderType, setStartupType, setGoal, setBudgetRange, setTechnicalBackground, setMarketType, nextStep, prevStep, completeOnboarding } = useOnboardingStore();
+  const { currentStep, totalSteps, answers, setFounderType, setStartupType, setGoal, setBudgetRange, setTechnicalBackground, setMarketType, nextStep, prevStep, completeOnboarding, skipOnboarding } = useOnboardingStore();
   const { generateRoadmap } = useRoadmapStore();
   const colors = useThemeColors();
   const step = STEPS[currentStep];
@@ -106,10 +105,29 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const handleSkip = () => {
+    const defaultProfile: StartupProfile = {
+      founderType: 'student',
+      startupType: 'saas',
+      goal: 'build_mvp',
+      budgetRange: 'low',
+      hasTechnicalBackground: false,
+      marketType: 'b2c',
+    };
+    generateRoadmap(defaultProfile);
+    skipOnboarding();
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.progressContainer}>
-        <ProgressBar progress={progress} label={`Step ${currentStep + 1} of ${totalSteps}`} />
+      <View style={styles.topRow}>
+        <View style={{ flex: 1 }}>
+          <ProgressBar progress={progress} label={`Step ${currentStep + 1} of ${totalSteps}`} />
+        </View>
+        <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
+          <Text style={[styles.skipText, { color: colors.textMuted }]}>Skip for now</Text>
+          <Ionicons name="arrow-forward" size={14} color={colors.textMuted} />
+        </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.questionContainer}>
@@ -139,7 +157,9 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  progressContainer: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.md },
+  topRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingTop: Spacing.md, gap: Spacing.md },
+  skipBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: Spacing.xs },
+  skipText: { fontSize: FontSize.sm, fontWeight: FontWeight.medium },
   content: { flexGrow: 1, padding: Spacing.lg },
   questionContainer: { marginBottom: Spacing.xl },
   title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, marginBottom: Spacing.sm },

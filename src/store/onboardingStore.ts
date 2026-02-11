@@ -13,6 +13,7 @@ interface OnboardingState {
   totalSteps: number;
   answers: OnboardingAnswer;
   isComplete: boolean;
+  wasSkipped: boolean;
   setFounderType: (type: FounderType) => void;
   setStartupType: (type: StartupType) => void;
   setGoal: (goal: GoalType) => void;
@@ -22,14 +23,17 @@ interface OnboardingState {
   nextStep: () => void;
   prevStep: () => void;
   completeOnboarding: () => void;
+  skipOnboarding: () => void;
   resetOnboarding: () => void;
+  isProfileComplete: () => boolean;
 }
 
-export const useOnboardingStore = create<OnboardingState>((set) => ({
+export const useOnboardingStore = create<OnboardingState>((set, get) => ({
   currentStep: 0,
   totalSteps: 6,
   answers: {},
   isComplete: false,
+  wasSkipped: false,
 
   setFounderType: (founderType) =>
     set((state) => ({ answers: { ...state.answers, founderType } })),
@@ -61,6 +65,32 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
 
   completeOnboarding: () => set({ isComplete: true }),
 
+  skipOnboarding: () =>
+    set({
+      isComplete: true,
+      wasSkipped: true,
+      answers: {
+        founderType: 'student',
+        startupType: 'saas',
+        goal: 'build_mvp',
+        budgetRange: 'low',
+        hasTechnicalBackground: false,
+        marketType: 'b2c',
+      },
+    }),
+
   resetOnboarding: () =>
-    set({ currentStep: 0, answers: {}, isComplete: false }),
+    set({ currentStep: 0, answers: {}, isComplete: false, wasSkipped: false }),
+
+  isProfileComplete: () => {
+    const { answers } = get();
+    return !!(
+      answers.founderType &&
+      answers.startupType &&
+      answers.goal &&
+      answers.budgetRange &&
+      answers.hasTechnicalBackground !== undefined &&
+      answers.marketType
+    );
+  },
 }));
