@@ -1,0 +1,132 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { Card, ProgressBar } from '../../components';
+import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors } from '../../theme';
+import { useRoadmapStore } from '../../store';
+import { PhaseStatus } from '../../models';
+
+const STATUS_LABELS: Record<PhaseStatus, string> = { pending: 'Pending', in_progress: 'In Progress', completed: 'Completed' };
+
+export const RoadmapScreen: React.FC = () => {
+  const { roadmap, updateTaskStatus } = useRoadmapStore();
+  const colors = useThemeColors();
+  const [expandedPhase, setExpandedPhase] = useState<string | null>(roadmap?.phases.find(p => p.status === 'in_progress')?.id || null);
+
+  const statusColor = (s: PhaseStatus) => s === 'completed' ? colors.success : s === 'in_progress' ? colors.accent : colors.statusPending;
+
+  if (!roadmap) {
+    return (
+      <SafeAreaView style={[st.container, { backgroundColor: colors.background }]}>
+        <View style={st.emptyState}>
+          <Ionicons name="map-outline" size={64} color={colors.textMuted} />
+          <Text style={[st.emptyTitle, { color: colors.textPrimary }]}>No Roadmap Generated</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const cycleStatus = (phaseId: string, taskId: string, cur: PhaseStatus) => {
+    const next: Record<PhaseStatus, PhaseStatus> = { pending: 'in_progress', in_progress: 'completed', completed: 'pending' };
+    updateTaskStatus(phaseId, taskId, next[cur]);
+  };
+
+  return (
+    <SafeAreaView style={[st.container, { backgroundColor: colors.background }]}>
+      <ScrollView contentContainerStyle={st.scroll} showsVerticalScrollIndicator={false}>
+        <Text style={[st.title, { color: colors.textPrimary }]}>Your Roadmap</Text>
+        <Text style={[st.subtitle, { color: colors.textMuted }]}>Tap a phase to expand • Tap a task to update</Text>
+
+        {roadmap.phases.map((phase, idx) => {
+          const isOpen = expandedPhase === phase.id;
+          return (
+            <View key={phase.id}>
+              {idx > 0 && (
+                <View style={st.connector}>
+                  <View style={[st.connectorLine, { backgroundColor: phase.status !== 'pending' ? colors.accent : colors.border }]} />
+                </View>
+              )}
+
+              <TouchableOpacity onPress={() => setExpandedPhase(isOpen ? null : phase.id)} activeOpacity={0.7}>
+                <Card variant={phase.status === 'in_progress' ? 'dark' : 'default'} delay={idx * 80}>
+                  <View style={st.phaseHeader}>
+                    <View style={st.phaseInfo}>
+                      <View style={st.phaseTitleRow}>
+                        <View style={[st.dot, { backgroundColor: statusColor(phase.status) }]} />
+                        <Text style={[st.phaseName, { color: phase.status === 'in_progress' ? colors.textLight : colors.textPrimary }]}>{phase.name}</Text>
+                      </View>
+                      <Text style={[st.phaseDesc, { color: phase.status === 'in_progress' ? 'rgba(255,255,255,0.6)' : colors.textSecondary }]}>{phase.description}</Text>
+                    </View>
+                    <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+                  </View>
+
+                  <View style={st.meta}>
+                    {[
+                      { icon: 'cash-outline' as const, val: phase.estimatedCost },
+                      { icon: 'time-outline' as const, val: phase.estimatedTimeline },
+                      { icon: 'flag-outline' as const, val: STATUS_LABELS[phase.status] },
+                    ].map(m => (
+                      <View key={m.icon} style={st.metaItem}>
+                        <Ionicons name={m.icon} size={14} color={phase.status === 'in_progress' ? 'rgba(255,255,255,0.4)' : colors.textMuted} />
+                        <Text style={[st.metaVal, { color: m.icon === 'flag-outline' ? statusColor(phase.status) : phase.status === 'in_progress' ? colors.textLight : colors.textPrimary }]}>{m.val}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  <ProgressBar progress={phase.completionPercentage} showPercentage color={colors.accent} height={6} style={{ marginTop: Spacing.sm }} />
+                </Card>
+              </TouchableOpacity>
+
+              {isOpen && (
+                <View style={[st.taskList, { borderLeftColor: colors.border }]}>
+                  {phase.tasks.map(task => (
+                    <TouchableOpacity key={task.id} style={[st.taskItem, { backgroundColor: colors.surface }]} onPress={() => cycleStatus(phase.id, task.id, task.status)} activeOpacity={0.7}>
+                      <View style={[st.taskBar, { backgroundColor: statusColor(task.status) }]} />
+                      <View style={st.taskContent}>
+                        <Text style={[st.taskTitle, { color: colors.textPrimary }, task.status === 'completed' && { textDecorationLine: 'line-through', color: colors.textMuted }]}>{task.title}</Text>
+                        <Text style={[st.taskDesc, { color: colors.textSecondary }]}>{task.description}</Text>
+                        <View style={st.taskMeta}>
+                          <View style={st.taskMetaItem}><Ionicons name="cash-outline" size={12} color={colors.textMuted} /><Text style={[st.taskMetaText, { color: colors.textMuted }]}>{task.estimatedCost}</Text></View>
+                          <View style={st.taskMetaItem}><Ionicons name="time-outline" size={12} color={colors.textMuted} /><Text style={[st.taskMetaText, { color: colors.textMuted }]}>{task.estimatedTime}</Text></View>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          );
+        })}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const st = StyleSheet.create({
+  container: { flex: 1 },
+  scroll: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, marginBottom: Spacing.xs },
+  subtitle: { fontSize: FontSize.sm, marginBottom: Spacing.lg },
+  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl },
+  emptyTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, marginTop: Spacing.md },
+  connector: { alignItems: 'center', marginBottom: -Spacing.sm, height: 20 },
+  connectorLine: { width: 2, height: 20 },
+  phaseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  phaseInfo: { flex: 1 },
+  phaseTitleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+  phaseName: { fontSize: FontSize.lg, fontWeight: FontWeight.bold },
+  phaseDesc: { fontSize: FontSize.sm, marginTop: Spacing.xs, marginLeft: Spacing.lg + Spacing.xs },
+  meta: { flexDirection: 'row', marginTop: Spacing.md, gap: Spacing.lg },
+  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  metaVal: { fontSize: FontSize.sm, fontWeight: FontWeight.semiBold },
+  taskList: { marginTop: Spacing.sm, marginLeft: Spacing.md, borderLeftWidth: 2, paddingLeft: Spacing.md },
+  taskItem: { flexDirection: 'row', borderRadius: BorderRadius.md, padding: Spacing.md, marginBottom: Spacing.sm, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
+  taskBar: { width: 4, borderRadius: 2, marginRight: Spacing.md },
+  taskContent: { flex: 1 },
+  taskTitle: { fontSize: FontSize.md, fontWeight: FontWeight.semiBold },
+  taskDesc: { fontSize: FontSize.xs, marginTop: 2 },
+  taskMeta: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.sm },
+  taskMetaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  taskMetaText: { fontSize: FontSize.xs },
+});
