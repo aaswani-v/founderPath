@@ -8,6 +8,7 @@ import { TransparencyScreen } from '../screens/dashboard/TransparencyScreen';
 import { ExpansionScreen } from '../screens/dashboard/ExpansionScreen';
 import { ChatScreen } from '../screens/chat/ChatScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import { EditProfileScreen } from '../screens/profile/EditProfileScreen';
 import { FloatingTabBar } from '../components';
 import { useThemeColors } from '../theme';
 import { FontWeight } from '../theme';
@@ -73,6 +74,14 @@ export const AppStack: React.FC<Props> = ({ hasCompletedOnboarding }) => {
             options={{
               headerShown: false,
               presentation: 'modal',
+              animation: 'slide_from_right',
+            }}
+          />
+          <Stack.Screen
+            name="EditProfile"
+            component={EditProfileScreen}
+            options={{
+              headerShown: false,
               animation: 'slide_from_right',
             }}
           />

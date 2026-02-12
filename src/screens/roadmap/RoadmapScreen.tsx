@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { Card, ProgressBar } from '../../components';
-import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors } from '../../theme';
+import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors, useThemeStore } from '../../theme';
 import { useRoadmapStore } from '../../store';
 import { PhaseStatus } from '../../models';
+import { useNavigation } from '@react-navigation/native';
 
 const STATUS_LABELS: Record<PhaseStatus, string> = { pending: 'Pending', in_progress: 'In Progress', completed: 'Completed' };
 
 export const RoadmapScreen: React.FC = () => {
   const { roadmap, updateTaskStatus } = useRoadmapStore();
   const colors = useThemeColors();
+  const { isDark, toggleTheme } = useThemeStore();
+  const navigation = useNavigation<any>();
   const [expandedPhase, setExpandedPhase] = useState<string | null>(roadmap?.phases.find(p => p.status === 'in_progress')?.id || null);
 
-  const statusColor = (s: PhaseStatus) => s === 'completed' ? colors.success : s === 'in_progress' ? colors.accent : colors.statusPending;
+  const statusColor = (s: PhaseStatus) => s === 'completed' ? colors.accent : s === 'in_progress' ? colors.accentSoft : colors.statusPending;
 
   if (!roadmap) {
     return (
@@ -34,7 +37,13 @@ export const RoadmapScreen: React.FC = () => {
   return (
     <SafeAreaView style={[st.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={st.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={[st.title, { color: colors.textPrimary }]}>Your Roadmap</Text>
+        {/* Header */}
+        <View style={st.headerRow}>
+          <Text style={[st.title, { color: colors.textPrimary }]}>Your Roadmap</Text>
+          <TouchableOpacity onPress={toggleTheme} style={[st.themeBtn, { backgroundColor: colors.surface }]}>
+            <Ionicons name={isDark ? 'sunny' : 'moon'} size={18} color={colors.accent} />
+          </TouchableOpacity>
+        </View>
         <Text style={[st.subtitle, { color: colors.textMuted }]}>Tap a phase to expand • Tap a task to update</Text>
 
         {roadmap.phases.map((phase, idx) => {
@@ -88,6 +97,13 @@ export const RoadmapScreen: React.FC = () => {
                         <View style={st.taskMeta}>
                           <View style={st.taskMetaItem}><Ionicons name="cash-outline" size={12} color={colors.textMuted} /><Text style={[st.taskMetaText, { color: colors.textMuted }]}>{task.estimatedCost}</Text></View>
                           <View style={st.taskMetaItem}><Ionicons name="time-outline" size={12} color={colors.textMuted} /><Text style={[st.taskMetaText, { color: colors.textMuted }]}>{task.estimatedTime}</Text></View>
+                          <TouchableOpacity
+                            onPress={() => navigation.navigate('Chat')}
+                            style={[st.askAiBtn, { backgroundColor: `${colors.accent}20` }]}
+                          >
+                            <Ionicons name="sparkles" size={12} color={colors.accent} />
+                            <Text style={[st.askAiText, { color: colors.accent }]}>Ask AI</Text>
+                          </TouchableOpacity>
                         </View>
                       </View>
                     </TouchableOpacity>
@@ -105,7 +121,9 @@ export const RoadmapScreen: React.FC = () => {
 const st = StyleSheet.create({
   container: { flex: 1 },
   scroll: { padding: Spacing.lg, paddingBottom: 100 },
-  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, marginBottom: Spacing.xs },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.xs },
+  themeBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   subtitle: { fontSize: FontSize.sm, marginBottom: Spacing.lg },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl },
   emptyTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, marginTop: Spacing.md },
@@ -129,4 +147,6 @@ const st = StyleSheet.create({
   taskMeta: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.sm },
   taskMetaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   taskMetaText: { fontSize: FontSize.xs },
+  askAiBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: Spacing.sm, paddingVertical: 3, borderRadius: BorderRadius.full },
+  askAiText: { fontSize: FontSize.xs, fontWeight: FontWeight.semiBold },
 });

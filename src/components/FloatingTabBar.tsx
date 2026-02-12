@@ -44,7 +44,7 @@ const TabItem: React.FC<{
       <Animated.View style={[styles.tabItem, { transform: [{ scale: scaleAnim }] }]}>
         <TouchableOpacity onPress={handlePress} activeOpacity={0.9} style={styles.tabTouchable}>
           <Animated.View style={[styles.centerBtn, { backgroundColor: colors.accent, transform: [{ translateY: bounceAnim }] }]}>
-            <Ionicons name={focused ? activeIcon : icon} size={22} color="#FFFFFF" />
+            <Ionicons name={focused ? activeIcon : icon} size={20} color="#FFFFFF" />
           </Animated.View>
           <Text style={[styles.tabLabel, { color: focused ? colors.accent : colors.textMuted }, focused && styles.tabLabelActive]}>
             {label}
@@ -59,7 +59,7 @@ const TabItem: React.FC<{
       <TouchableOpacity onPress={handlePress} activeOpacity={0.9} style={styles.tabTouchable}>
         {focused && <View style={[styles.activeIndicator, { backgroundColor: colors.accent }]} />}
         <Animated.View style={{ transform: [{ translateY: bounceAnim }] }}>
-          <Ionicons name={focused ? activeIcon : icon} size={21} color={focused ? colors.accent : colors.textMuted} />
+          <Ionicons name={focused ? activeIcon : icon} size={18} color={focused ? colors.accent : colors.textMuted} />
         </Animated.View>
         <Text style={[styles.tabLabel, { color: focused ? colors.accent : colors.textMuted }, focused && styles.tabLabelActive]}>
           {label}
@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
     borderRadius: BorderRadius.xl,
-    paddingVertical: Spacing.xs + 2,
-    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.xs + 2,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   tabItem: { flex: 1, alignItems: 'center' },
   tabTouchable: { alignItems: 'center', paddingVertical: Spacing.xs, paddingHorizontal: 4 },
   activeIndicator: { position: 'absolute', top: -2, width: 18, height: 3, borderRadius: 2 },
-  centerBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginTop: -10, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 },
-  tabLabel: { fontSize: 10, fontWeight: FontWeight.medium, marginTop: 2 },
+  centerBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', marginTop: -6, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 },
+  tabLabel: { fontSize: 9, fontWeight: FontWeight.medium, marginTop: 1 },
   tabLabelActive: { fontWeight: FontWeight.bold },
 });

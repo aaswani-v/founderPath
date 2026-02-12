@@ -13,11 +13,11 @@ interface ChatConfig {
   model: string;
 }
 
-// ── Configuration (swap these when you get your API key) ──────────
+// ── Configuration (reads API key from .env) ──────────────────────
 const config: ChatConfig = {
-  apiEndpoint: '', // e.g. 'https://api.groq.com/openai/v1/chat/completions'
-  apiKey: '',      // e.g. 'gsk_...'
-  model: '',       // e.g. 'llama-3.3-70b-versatile'
+  apiEndpoint: 'https://api.groq.com/openai/v1/chat/completions',
+  apiKey: process.env.EXPO_PUBLIC_GROQ_API_KEY || '',
+  model: 'llama-3.3-70b-versatile',
 };
 
 export const aiChatService = {
@@ -51,7 +51,9 @@ export const aiChatService = {
 
     const apiMessages = [
       { role: 'system', content: systemPrompt },
-      ...messages.map((m) => ({ role: m.role, content: m.content })),
+      ...messages
+        .filter((m) => m.id !== 'welcome') // skip the hardcoded welcome bubble
+        .map((m) => ({ role: m.role, content: m.content })),
     ];
 
     const response = await fetch(config.apiEndpoint, {
@@ -63,13 +65,14 @@ export const aiChatService = {
       body: JSON.stringify({
         model: config.model,
         messages: apiMessages,
-        max_tokens: 500,
-        temperature: 0.7,
+        max_tokens: 1024,
+        temperature: 0.8,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`AI API error: ${response.status}`);
+      const errorBody = await response.text().catch(() => '');
+      throw new Error(`AI API error ${response.status}: ${errorBody}`);
     }
 
     const data = await response.json();

@@ -53,7 +53,7 @@ const TypingDots: React.FC = () => {
 export const ChatScreen: React.FC = () => {
   const { messages, isTyping, sendMessage, clearChat } = useChatStore();
   const colors = useThemeColors();
-  const { isDark } = useThemeStore();
+  const { isDark, toggleTheme } = useThemeStore();
   const [input, setInput] = useState('');
   const scrollRef = useRef<ScrollView>(null);
 
@@ -111,7 +111,10 @@ export const ChatScreen: React.FC = () => {
             {isTyping ? 'Typing...' : 'Your startup advisor'}
           </Text>
         </View>
-        <TouchableOpacity onPress={clearChat} style={[s.clearBtn, { backgroundColor: colors.surface }]}>
+        <TouchableOpacity onPress={toggleTheme} style={[s.clearBtn, { backgroundColor: colors.surface }]}>
+          <Ionicons name={isDark ? 'sunny' : 'moon'} size={18} color={colors.accent} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={clearChat} style={[s.clearBtn, { backgroundColor: colors.surface, marginLeft: Spacing.xs }]}>
           <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
@@ -220,32 +223,32 @@ const s = StyleSheet.create({
     paddingBottom: 96,
     borderTopWidth: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    elevation: 18,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 12,
     ...Platform.select({
-      web: { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 -6px 24px rgba(0,0,0,0.22)' } as any,
+      web: { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)' } as any,
     }),
   },
   inputField: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 24,
-    paddingLeft: Spacing.md,
-    paddingRight: 4,
-    minHeight: 46,
+    borderRadius: 28,
+    paddingLeft: Spacing.md + 2,
+    paddingRight: 5,
+    minHeight: 50,
   },
   input: {
     flex: 1,
     maxHeight: 100,
     fontSize: FontSize.sm,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.sm + 2,
   },
   sendBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },

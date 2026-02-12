@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, Switch, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { Card, ProgressBar, OptionCard, Button } from '../../components';
-import { Spacing, FontSize, FontWeight, useThemeColors } from '../../theme';
+import { Spacing, FontSize, FontWeight, useThemeColors, useThemeStore } from '../../theme';
 import { useRoadmapStore } from '../../store';
 import { ExpansionType } from '../../models';
 
@@ -18,6 +18,7 @@ const CHECKLIST = [
 export const ExpansionScreen: React.FC = () => {
   const { isExpansionMode, setExpansionMode } = useRoadmapStore();
   const colors = useThemeColors();
+  const { isDark, toggleTheme } = useThemeStore();
   const [expansionType, setExpansionType] = useState<ExpansionType>('same_market');
   const [teamSize, setTeamSize] = useState(5);
   const [checked, setChecked] = useState<string[]>([]);
@@ -34,7 +35,12 @@ export const ExpansionScreen: React.FC = () => {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={[s.title, { color: colors.textPrimary }]}>Market Expansion</Text>
+        <View style={s.headerRow}>
+          <Text style={[s.title, { color: colors.textPrimary }]}>Market Expansion</Text>
+          <TouchableOpacity onPress={toggleTheme} style={[s.themeBtn, { backgroundColor: colors.surface }]}>
+            <Ionicons name={isDark ? 'sunny' : 'moon'} size={18} color={colors.accent} />
+          </TouchableOpacity>
+        </View>
         <Text style={[s.subtitle, { color: colors.textMuted }]}>Plan your growth into new or existing markets</Text>
 
         <Card delay={0}>
@@ -107,7 +113,9 @@ export const ExpansionScreen: React.FC = () => {
 const s = StyleSheet.create({
   container: { flex: 1 },
   scroll: { padding: Spacing.lg, paddingBottom: 100 },
-  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, marginBottom: Spacing.xs },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.xs },
+  themeBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   subtitle: { fontSize: FontSize.sm, marginBottom: Spacing.lg },
   toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   toggleLabel: { flexDirection: 'row', alignItems: 'center' },

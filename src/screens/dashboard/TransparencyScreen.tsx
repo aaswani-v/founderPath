@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Card } from '../../components';
-import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors } from '../../theme';
+import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors, useThemeStore } from '../../theme';
 import { useRoadmapStore } from '../../store';
 import { decisionEngine, aiExplanationService } from '../../services';
 
@@ -11,6 +11,7 @@ const fmt = (v: string) => v.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => 
 export const TransparencyScreen: React.FC = () => {
   const { startupProfile } = useRoadmapStore();
   const colors = useThemeColors();
+  const { isDark, toggleTheme } = useThemeStore();
   const [aiSummary, setAiSummary] = useState<string>('');
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +56,12 @@ export const TransparencyScreen: React.FC = () => {
   return (
     <SafeAreaView style={[s.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={[s.title, { color: colors.textPrimary }]}>Why This Roadmap?</Text>
+        <View style={s.headerRow}>
+          <Text style={[s.title, { color: colors.textPrimary }]}>Why This Roadmap?</Text>
+          <TouchableOpacity onPress={toggleTheme} style={[s.themeBtn, { backgroundColor: colors.surface }]}>
+            <Ionicons name={isDark ? 'sunny' : 'moon'} size={18} color={colors.accent} />
+          </TouchableOpacity>
+        </View>
         <Text style={[s.subtitle, { color: colors.textMuted }]}>Full transparency into how your roadmap was generated</Text>
 
         <Card title="Your Constraints" delay={0}>
@@ -112,7 +118,9 @@ export const TransparencyScreen: React.FC = () => {
 const s = StyleSheet.create({
   container: { flex: 1 },
   scroll: { padding: Spacing.lg, paddingBottom: 100 },
-  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, marginBottom: Spacing.xs },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.xs },
+  themeBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   subtitle: { fontSize: FontSize.sm, marginBottom: Spacing.lg },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl },
   emptyTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, marginTop: Spacing.md },

@@ -31,3 +31,10 @@ export const FontWeight = {
   semiBold: '600' as const,
   bold: '700' as const,
 };
+
+export const FontFamily = {
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semiBold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
+};

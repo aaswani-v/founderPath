@@ -10,10 +10,11 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (displayName: string, photoUri?: string) => void;
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
@@ -43,6 +44,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     await authService.logout();
     set({ user: null, isAuthenticated: false, isLoading: false });
+  },
+
+  updateProfile: (displayName, photoUri) => {
+    const { user } = get();
+    if (!user) return;
+    set({ user: { ...user, displayName, photoUri: photoUri ?? user.photoUri } });
   },
 
   clearError: () => set({ error: null }),

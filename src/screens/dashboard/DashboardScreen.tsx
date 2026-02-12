@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Card, ProgressBar, RiskGauge } from '../../components';
@@ -53,9 +53,18 @@ export const DashboardScreen: React.FC = () => {
             <Text style={[s.greeting, { color: colors.textPrimary }]}>Hello, {user?.displayName || 'Founder'}</Text>
             <Text style={[s.headerSub, { color: colors.textSecondary }]}>Here's your startup progress</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={[s.avatarBtn, { backgroundColor: colors.accent }]}>
-            <Text style={s.avatarText}>{initial}</Text>
-          </TouchableOpacity>
+          <View style={s.headerActions}>
+            <TouchableOpacity onPress={() => useThemeStore.getState().toggleTheme()} style={[s.themeBtn, { backgroundColor: colors.surface }]}>
+              <Ionicons name={isDark ? 'sunny' : 'moon'} size={18} color={colors.accent} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={[s.avatarBtn, { backgroundColor: colors.accent }]}>
+              {user?.photoUri ? (
+                <Image source={{ uri: user.photoUri }} style={s.avatarImg} />
+              ) : (
+                <Text style={s.avatarText}>{initial}</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* ── Skipped Banner ────────────────────────── */}
@@ -111,7 +120,7 @@ export const DashboardScreen: React.FC = () => {
         </View>
 
         {/* ── Startup Summary ───────────────────────── */}
-        <Card title="Your Startup" delay={200}>
+        <Card title="About Your Startup" delay={200}>
           <View style={s.grid}>
             {[
               { label: 'Type', val: fmt(startupProfile.startupType), icon: 'briefcase' as const },
@@ -178,8 +187,11 @@ const s = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.lg },
   greeting: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold },
   headerSub: { fontSize: FontSize.sm, marginTop: 2 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  themeBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   avatarBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 18, fontWeight: FontWeight.bold, color: '#FFFFFF' },
+  avatarImg: { width: 44, height: 44, borderRadius: 22 },
 
   // Empty
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl },

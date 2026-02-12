@@ -14,6 +14,7 @@ export interface UserProfile {
   id: string;
   email: string;
   displayName: string;
+  photoUri?: string;
   createdAt: string;
   onboardingCompleted: boolean;
 }
@@ -34,6 +35,7 @@ export interface Task {
   estimatedCost: string;
   estimatedTime: string;
   status: PhaseStatus;
+  completedAt?: string;
 }
 
 export interface Phase {
@@ -45,6 +47,7 @@ export interface Phase {
   completionPercentage: number;
   estimatedCost: string;
   estimatedTimeline: string;
+  startedAt?: string;
 }
 
 export interface Roadmap {

@@ -6,6 +6,7 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors, useThemeStore } from '../../theme';
@@ -36,9 +37,13 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
 
         {/* Avatar + Info */}
         <View style={s.avatarSection}>
-          <View style={[s.avatar, { backgroundColor: colors.accent }]}>
-            <Text style={s.avatarText}>{initial}</Text>
-          </View>
+          {user?.photoUri ? (
+            <Image source={{ uri: user.photoUri }} style={[s.avatar, s.avatarImage, { borderColor: colors.accent }]} />
+          ) : (
+            <View style={[s.avatar, { backgroundColor: colors.accent }]}>
+              <Text style={s.avatarText}>{initial}</Text>
+            </View>
+          )}
           <Text style={[s.userName, { color: colors.textPrimary }]}>{user?.displayName || 'Founder'}</Text>
           <Text style={[s.userEmail, { color: colors.textMuted }]}>{user?.email || ''}</Text>
         </View>
@@ -90,7 +95,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
         <View style={[s.section, { backgroundColor: colors.surface }]}>
           <Text style={[s.sectionTitle, { color: colors.textMuted }]}>ACCOUNT</Text>
 
-          <TouchableOpacity onPress={() => navigation.goBack()} style={[s.row, { borderBottomColor: colors.divider }]}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={[s.row, { borderBottomColor: colors.divider }]}>
             <View style={[s.rowIcon, { backgroundColor: `${colors.accent}15` }]}>
               <Ionicons name="create-outline" size={18} color={colors.accent} />
             </View>
@@ -123,6 +128,7 @@ const s = StyleSheet.create({
   title: { fontSize: FontSize.xl, fontWeight: FontWeight.bold },
   avatarSection: { alignItems: 'center', marginBottom: Spacing.xl },
   avatar: { width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.md },
+  avatarImage: { borderWidth: 3 },
   avatarText: { fontSize: 32, fontWeight: FontWeight.bold, color: '#FFFFFF' },
   userName: { fontSize: FontSize.xl, fontWeight: FontWeight.bold },
   userEmail: { fontSize: FontSize.sm, marginTop: 4 },
