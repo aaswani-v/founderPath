@@ -33,6 +33,8 @@ export interface Task {
   title: string;
   description: string;
   estimatedCost: string;
+  costLow: number;   // USD
+  costHigh: number;  // USD
   estimatedTime: string;
   status: PhaseStatus;
   completedAt?: string;
@@ -46,6 +48,8 @@ export interface Phase {
   status: PhaseStatus;
   completionPercentage: number;
   estimatedCost: string;
+  costLow: number;   // USD
+  costHigh: number;  // USD
   estimatedTimeline: string;
   startedAt?: string;
 }

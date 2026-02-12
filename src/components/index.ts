@@ -5,3 +5,4 @@ export { ProgressBar } from './ProgressBar';
 export { OptionCard } from './OptionCard';
 export { RiskGauge } from './RiskGauge';
 export { FloatingTabBar } from './FloatingTabBar';
+export { ConvertibleCost } from './ConvertibleCost';

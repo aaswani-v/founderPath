@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import { Card, ProgressBar } from '../../components';
+import { Card, ProgressBar, ConvertibleCost } from '../../components';
 import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors, useThemeStore } from '../../theme';
 import { useRoadmapStore } from '../../store';
 import { PhaseStatus } from '../../models';
@@ -70,8 +70,11 @@ export const RoadmapScreen: React.FC = () => {
                   </View>
 
                   <View style={st.meta}>
+                    <View style={st.metaItem}>
+                      <Ionicons name="cash-outline" size={14} color={phase.status === 'in_progress' ? 'rgba(255,255,255,0.4)' : colors.textMuted} />
+                      <ConvertibleCost costLow={phase.costLow} costHigh={phase.costHigh} style={{ color: phase.status === 'in_progress' ? colors.textLight : colors.textPrimary }} />
+                    </View>
                     {[
-                      { icon: 'cash-outline' as const, val: phase.estimatedCost },
                       { icon: 'time-outline' as const, val: phase.estimatedTimeline },
                       { icon: 'flag-outline' as const, val: STATUS_LABELS[phase.status] },
                     ].map(m => (
@@ -95,7 +98,7 @@ export const RoadmapScreen: React.FC = () => {
                         <Text style={[st.taskTitle, { color: colors.textPrimary }, task.status === 'completed' && { textDecorationLine: 'line-through', color: colors.textMuted }]}>{task.title}</Text>
                         <Text style={[st.taskDesc, { color: colors.textSecondary }]}>{task.description}</Text>
                         <View style={st.taskMeta}>
-                          <View style={st.taskMetaItem}><Ionicons name="cash-outline" size={12} color={colors.textMuted} /><Text style={[st.taskMetaText, { color: colors.textMuted }]}>{task.estimatedCost}</Text></View>
+                          <View style={st.taskMetaItem}><Ionicons name="cash-outline" size={12} color={colors.textMuted} /><ConvertibleCost costLow={task.costLow} costHigh={task.costHigh} style={{ color: colors.textMuted }} /></View>
                           <View style={st.taskMetaItem}><Ionicons name="time-outline" size={12} color={colors.textMuted} /><Text style={[st.taskMetaText, { color: colors.textMuted }]}>{task.estimatedTime}</Text></View>
                           <TouchableOpacity
                             onPress={() => navigation.navigate('Chat')}
