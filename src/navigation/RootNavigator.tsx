@@ -5,6 +5,7 @@ import { AppStack } from './AppStack';
 import { useAuthStore, useOnboardingStore, useRoadmapStore } from '../store';
 import { useThemeStore, LightColors, DarkColors } from '../theme';
 import { View, ActivityIndicator } from 'react-native';
+import { StartupProfile } from '../models';
 
 const CustomLight = {
   ...DefaultTheme,
@@ -32,8 +33,8 @@ const CustomDark = {
 
 export const RootNavigator: React.FC = () => {
   const { isAuthenticated, checkSession, isLoading } = useAuthStore();
-  const { isComplete, _hydrated: onboardingHydrated, hydrate: hydrateOnboarding } = useOnboardingStore();
-  const { _hydrated: roadmapHydrated, hydrate: hydrateRoadmap } = useRoadmapStore();
+  const { isComplete, answers, _hydrated: onboardingHydrated, hydrate: hydrateOnboarding } = useOnboardingStore();
+  const { roadmap, _hydrated: roadmapHydrated, hydrate: hydrateRoadmap, generateRoadmap } = useRoadmapStore();
   const { isDark } = useThemeStore();
 
   useEffect(() => {
@@ -41,6 +42,21 @@ export const RootNavigator: React.FC = () => {
     hydrateOnboarding();
     hydrateRoadmap();
   }, [checkSession, hydrateOnboarding, hydrateRoadmap]);
+
+  // Auto-regenerate roadmap if onboarding is complete but roadmap data is missing
+  useEffect(() => {
+    if (onboardingHydrated && roadmapHydrated && isComplete && !roadmap && answers.founderType) {
+      const profile: StartupProfile = {
+        founderType: answers.founderType!,
+        startupType: answers.startupType!,
+        goal: answers.goal!,
+        budgetRange: answers.budgetRange!,
+        hasTechnicalBackground: answers.hasTechnicalBackground!,
+        marketType: answers.marketType!,
+      };
+      generateRoadmap(profile);
+    }
+  }, [onboardingHydrated, roadmapHydrated, isComplete, roadmap, answers, generateRoadmap]);
 
   if (isLoading || !onboardingHydrated || !roadmapHydrated) {
     return (
