@@ -6,11 +6,11 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors, useThemeStore } from '../../theme';
 import { useChatStore } from '../../store';
@@ -55,6 +55,7 @@ export const ChatScreen: React.FC = () => {
   const colors = useThemeColors();
   const { isDark, toggleTheme } = useThemeStore();
   const [input, setInput] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   const glassBg = isDark ? 'rgba(26, 23, 38, 0.8)' : 'rgba(255, 255, 255, 0.8)';
@@ -163,16 +164,27 @@ export const ChatScreen: React.FC = () => {
 
         {/* Input Bar — positioned above floating tab */}
         <View style={[s.inputBarWrap, { backgroundColor: glassBg, borderColor: glassBorder }]}>
-          <View style={[s.inputField, { backgroundColor: colors.divider }]}>
+          <View
+            style={[
+              s.inputField,
+              {
+                backgroundColor: colors.divider,
+                borderWidth: 1,
+                borderColor: isFocused ? colors.accent : 'transparent',
+              },
+            ]}
+          >
             <TextInput
               value={input}
               onChangeText={setInput}
               placeholder="Ask your AI advisor..."
               placeholderTextColor={colors.textMuted}
-              style={[s.input, { color: colors.textPrimary }]}
+              style={[s.input, { color: colors.textPrimary } as any, Platform.OS === 'web' && { outlineStyle: 'none' }]}
               multiline
               maxLength={500}
               onSubmitEditing={handleSend}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               returnKeyType="send"
             />
             <TouchableOpacity

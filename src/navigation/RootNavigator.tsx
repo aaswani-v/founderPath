@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { AuthStack } from './AuthStack';
 import { AppStack } from './AppStack';
 import { useAuthStore, useOnboardingStore } from '../store';
 import { useThemeStore, LightColors, DarkColors } from '../theme';
+import { View, ActivityIndicator } from 'react-native';
 
 const CustomLight = {
   ...DefaultTheme,
@@ -30,9 +31,21 @@ const CustomDark = {
 };
 
 export const RootNavigator: React.FC = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, checkSession, isLoading } = useAuthStore();
   const { isComplete } = useOnboardingStore();
   const { isDark } = useThemeStore();
+
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? DarkColors.background : LightColors.background }}>
+        <ActivityIndicator size="large" color={isDark ? DarkColors.accent : LightColors.accent} />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer theme={isDark ? CustomDark : CustomLight}>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { Card, ProgressBar, ConvertibleCost } from '../../components';
 import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors, useThemeStore } from '../../theme';
@@ -45,6 +46,14 @@ export const RoadmapScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
         <Text style={[st.subtitle, { color: colors.textMuted }]}>Tap a phase to expand • Tap a task to update</Text>
+
+        <TouchableOpacity 
+          style={[st.govLinkBtn, { backgroundColor: `${colors.accent}15` }]}
+          onPress={() => Linking.openURL('https://www.startupindia.gov.in/')}
+        >
+          <Ionicons name="document-text-outline" size={16} color={colors.accent} />
+          <Text style={[st.govLinkText, { color: colors.accent }]}>Apply on Startup India Portal</Text>
+        </TouchableOpacity>
 
         {roadmap.phases.map((phase, idx) => {
           const isOpen = expandedPhase === phase.id;
@@ -130,6 +139,8 @@ const st = StyleSheet.create({
   subtitle: { fontSize: FontSize.sm, marginBottom: Spacing.lg },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl },
   emptyTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, marginTop: Spacing.md },
+  govLinkBtn: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.md, alignSelf: 'flex-start', marginBottom: Spacing.lg, gap: Spacing.xs },
+  govLinkText: { fontSize: FontSize.sm, fontWeight: FontWeight.semiBold },
   connector: { alignItems: 'center', marginBottom: -Spacing.sm, height: 20 },
   connectorLine: { width: 2, height: 20 },
   phaseHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
