@@ -32,14 +32,15 @@ const CustomDark = {
 
 export const RootNavigator: React.FC = () => {
   const { isAuthenticated, checkSession, isLoading } = useAuthStore();
-  const { isComplete } = useOnboardingStore();
+  const { isComplete, _hydrated, hydrate } = useOnboardingStore();
   const { isDark } = useThemeStore();
 
   useEffect(() => {
     checkSession();
-  }, [checkSession]);
+    hydrate();
+  }, [checkSession, hydrate]);
 
-  if (isLoading) {
+  if (isLoading || !_hydrated) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? DarkColors.background : LightColors.background }}>
         <ActivityIndicator size="large" color={isDark ? DarkColors.accent : LightColors.accent} />
