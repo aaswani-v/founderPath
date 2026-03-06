@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Roadmap,
   RiskScore,
@@ -8,12 +9,16 @@ import {
 } from '../models';
 import { decisionEngine } from '../services/decisionEngine';
 
+const STORAGE_KEY = 'founderpath-roadmap';
+
 interface RoadmapState {
   roadmap: Roadmap | null;
   riskScores: RiskScore | null;
   startupProfile: StartupProfile | null;
   expansionProfile: ExpansionProfile | null;
   isExpansionMode: boolean;
+  _hydrated: boolean;
+  hydrate: () => Promise<void>;
   generateRoadmap: (profile: StartupProfile) => void;
   updateTaskStatus: (phaseId: string, taskId: string, status: PhaseStatus) => void;
   setExpansionMode: (enabled: boolean) => void;
@@ -21,17 +26,49 @@ interface RoadmapState {
   resetRoadmap: () => void;
 }
 
+// Helper to save roadmap data to AsyncStorage
+const persistState = (state: Partial<RoadmapState>) => {
+  const { roadmap, riskScores, startupProfile, expansionProfile, isExpansionMode } = state as RoadmapState;
+  AsyncStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({ roadmap, riskScores, startupProfile, expansionProfile, isExpansionMode })
+  ).catch((e) => console.warn('Failed to persist roadmap state:', e));
+};
+
 export const useRoadmapStore = create<RoadmapState>((set, get) => ({
   roadmap: null,
   riskScores: null,
   startupProfile: null,
   expansionProfile: null,
   isExpansionMode: false,
+  _hydrated: false,
+
+  hydrate: async () => {
+    try {
+      const raw = await AsyncStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        set({
+          roadmap: parsed.roadmap ?? null,
+          riskScores: parsed.riskScores ?? null,
+          startupProfile: parsed.startupProfile ?? null,
+          expansionProfile: parsed.expansionProfile ?? null,
+          isExpansionMode: parsed.isExpansionMode ?? false,
+          _hydrated: true,
+        });
+      } else {
+        set({ _hydrated: true });
+      }
+    } catch {
+      set({ _hydrated: true });
+    }
+  },
 
   generateRoadmap: (profile) => {
     const roadmap = decisionEngine.generateRoadmap(profile);
     const riskScores = decisionEngine.computeRiskScores(profile);
     set({ roadmap, riskScores, startupProfile: profile });
+    persistState({ ...get(), roadmap, riskScores, startupProfile: profile });
   },
 
   updateTaskStatus: (phaseId, taskId, status) => {
@@ -101,27 +138,36 @@ export const useRoadmapStore = create<RoadmapState>((set, get) => ({
       }
     }
 
-    set({
-      roadmap: {
-        ...roadmap,
-        phases: updatedPhases,
-        lastUpdated: now,
-      },
-    });
+    const updatedRoadmap = {
+      ...roadmap,
+      phases: updatedPhases,
+      lastUpdated: now,
+    };
+
+    set({ roadmap: updatedRoadmap });
+    persistState({ ...get(), roadmap: updatedRoadmap });
   },
 
-  setExpansionMode: (enabled) => set({ isExpansionMode: enabled }),
+  setExpansionMode: (enabled) => {
+    set({ isExpansionMode: enabled });
+    persistState({ ...get(), isExpansionMode: enabled });
+  },
 
-  setExpansionProfile: (profile) => set({ expansionProfile: profile }),
+  setExpansionProfile: (profile) => {
+    set({ expansionProfile: profile });
+    persistState({ ...get(), expansionProfile: profile });
+  },
 
-  resetRoadmap: () =>
+  resetRoadmap: () => {
     set({
       roadmap: null,
       riskScores: null,
       startupProfile: null,
       expansionProfile: null,
       isExpansionMode: false,
-    }),
+    });
+    AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
+  },
 }));
 
 /* ── Helper: parse "1–2 weeks" / "2 weeks" / "3–4 months" into days ── */

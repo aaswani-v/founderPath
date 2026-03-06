@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { AuthStack } from './AuthStack';
 import { AppStack } from './AppStack';
-import { useAuthStore, useOnboardingStore } from '../store';
+import { useAuthStore, useOnboardingStore, useRoadmapStore } from '../store';
 import { useThemeStore, LightColors, DarkColors } from '../theme';
 import { View, ActivityIndicator } from 'react-native';
 
@@ -32,15 +32,17 @@ const CustomDark = {
 
 export const RootNavigator: React.FC = () => {
   const { isAuthenticated, checkSession, isLoading } = useAuthStore();
-  const { isComplete, _hydrated, hydrate } = useOnboardingStore();
+  const { isComplete, _hydrated: onboardingHydrated, hydrate: hydrateOnboarding } = useOnboardingStore();
+  const { _hydrated: roadmapHydrated, hydrate: hydrateRoadmap } = useRoadmapStore();
   const { isDark } = useThemeStore();
 
   useEffect(() => {
     checkSession();
-    hydrate();
-  }, [checkSession, hydrate]);
+    hydrateOnboarding();
+    hydrateRoadmap();
+  }, [checkSession, hydrateOnboarding, hydrateRoadmap]);
 
-  if (isLoading || !_hydrated) {
+  if (isLoading || !onboardingHydrated || !roadmapHydrated) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? DarkColors.background : LightColors.background }}>
         <ActivityIndicator size="large" color={isDark ? DarkColors.accent : LightColors.accent} />
