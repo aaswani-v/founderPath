@@ -6,10 +6,18 @@ import { useNavigation } from '@react-navigation/native';
 import { Card, ProgressBar, RiskGauge } from '../../components';
 import { Spacing, FontSize, FontWeight, BorderRadius, useThemeColors, useThemeStore } from '../../theme';
 import { useRoadmapStore, useAuthStore, useOnboardingStore, useCurrencyStore } from '../../store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const fmt = (v: string) => v.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
 
 export const DashboardScreen: React.FC = () => {
+  React.useEffect(() => {
+    AsyncStorage.getAllKeys().then((keys) => {
+      AsyncStorage.multiGet(keys).then((result) => {
+        console.table(result);
+      });
+    });
+  }, []);
   const { roadmap, riskScores, startupProfile } = useRoadmapStore();
   const { user } = useAuthStore();
   const { wasSkipped } = useOnboardingStore();
